@@ -74,10 +74,16 @@ namespace HttpTest.Services
         }
     }
 
+    public class UserDto
+    {
+        public string email { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+    }
 
     public class UserService
     {
-        private readonly string myapikey = "";
+        private readonly string myapikey = "free_user_3D1EfJF4jQhHHs1qXHtBTvjC7hH";
         private readonly string url = "https://reqres.in/api/users";
 
         public async Task<List<User>> GetUsers()
@@ -100,6 +106,63 @@ namespace HttpTest.Services
             var jsonString = await result.Content.ReadAsStringAsync();
             var data = JsonConvert.DeserializeObject<RootobjectSingle>(jsonString);
             return data != null ? data.data : null;
+        }
+
+        public async Task<string> AddUser(UserDto dto)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("x-api-key", myapikey);
+
+            var json = JsonConvert.SerializeObject(dto);
+
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(url, data);
+
+            Console.WriteLine((int)response.StatusCode);
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.IsSuccessStatusCode);
+
+            var result = await response.Content.ReadAsStringAsync();
+            return result;
+        }
+
+        // /users/1
+        // 
+        public async Task<string> UpdateUserAsync(int id,UserDto userDto)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("x-api-key", myapikey);
+
+            var json = JsonConvert.SerializeObject(userDto);
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await client.PutAsync(url + "/" + id, stringContent);
+
+            Console.WriteLine((int)response.StatusCode);
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.IsSuccessStatusCode);
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            return result;
+        }
+
+        public async Task<string> DeleteUserAsync(int id)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("x-api-key", myapikey);
+
+            var response = await client.DeleteAsync(url + "/" + id);
+
+            Console.WriteLine((int)response.StatusCode);
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.IsSuccessStatusCode);
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            return result;
         }
     }
 }
